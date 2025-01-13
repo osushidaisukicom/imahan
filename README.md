@@ -22,7 +22,7 @@ $ source .envrc
 ### init db
 
 ```shellsession
-$ psql -h $DB_HOST -p $DB_PORT -d $DB_NAME -U $DB_USER -f ./initdb.d/00_create_task_list_table.sql
+$ psql -h $DB_HOST -p $DB_PORT -d $DB_NAME -U $DB_USER -f ./initdb.d/00_create_task_table.sql
 ```
 
 ### serve
