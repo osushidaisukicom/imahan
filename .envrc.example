@@ -10,3 +10,10 @@ export DB_NAME=""
 
 # ./initdb.d/* を流すときのみ必要
 export PGPASSWORD=""
+
+# SQLBoiler でモデルデータの利用時のみ利用する
+export PSQL_DBNAME=""
+export PSQL_HOST=""
+export PSQL_PORT=""
+export PSQL_USER=""
+export PSQL_PASS=""

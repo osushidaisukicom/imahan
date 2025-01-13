@@ -31,6 +31,15 @@ $ psql -h $DB_HOST -p $DB_PORT -d $DB_NAME -U $DB_USER -f ./initdb.d/00_create_t
 $ go run ./cmd/imahan-api/main.go
 ```
 
+### use SQLBoiler
+
+/models にコードが自動生成される。
+fyi: https://github.com/volatiletech/sqlboiler
+
+```shellsession
+$ sqlboiler psql -o models -p models --no-tests --wipe
+```
+
 ### API
 
 - GET `/task`

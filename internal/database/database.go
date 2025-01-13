@@ -2,16 +2,13 @@ package database
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/google/uuid"
+	"github.com/osushidaisukicom/imahan-api/models"
 )
 
 type Task struct {
-	TaskID      uuid.UUID
-	DisplayName string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	*models.Task
 }
 
 type TaskData struct {
