@@ -1,0 +1,12 @@
+namespace: imahan
+
+resources:
+  - namespaces.yaml
+  - deployments.yaml
+  - services.yaml
+
+secretGenerator:
+  - name: imahan-api-secret
+    envs:
+      - .env
+    type: Opaque

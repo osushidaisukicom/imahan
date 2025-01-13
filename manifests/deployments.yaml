@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  labels:
+    app: imahan-api
+  name: imahan-api
+
+spec:
+  selector:
+    matchLabels:
+      app: imahan-api
+  template:
+    metadata:
+      labels:
+        app: imahan-api
+    spec:
+      containers:
+        - name: imahan-api
+          image: localhost/osushidaisukicom/imahan-api:latest
+          env:
+            - name: DB_NAME
+              value: postgres
+          envFrom:
+            - secretRef:
+                name: imahan-api-secret
+          ports:
+            - containerPort: 3081
+              name: imahan-api
+              protocol: TCP
