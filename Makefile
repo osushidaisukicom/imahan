@@ -16,6 +16,10 @@ help: ## Show help
 fmt: ## Format
 	@go fmt ./...
 
+.PHONY: manifest-fmt
+fmt: ## Format manifest
+	@npx prettier --write manifests
+
 # image
 .PHONY: image-build
 image-build: ## Build Image
