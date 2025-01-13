@@ -1,14 +1,17 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/google/uuid"
 	"github.com/osushidaisukicom/imahan-api/models"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type Task struct {
 	*models.Task
+	db *sql.DB
 }
 
 type TaskData struct {
@@ -31,19 +34,23 @@ func GenUUID() uuid.UUID {
 	return uuid
 }
 
-func InsertTaskData(db *sql.DB, data *TaskData) (sql.Result, error) {
-	result, err := db.Exec(`INSERT INTO task_list (display_name) VALUES ($1)`, data.DisplayName)
+func InsertTaskData(ctx context.Context, db *sql.DB, data *TaskData) (*models.Task, error) {
+	task := &models.Task{
+		DisplayName: data.DisplayName,
+	}
+
+	err := task.Insert(ctx, db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return task, nil
 }
 
-func ShowTaskData(db *sql.DB) (*sql.Rows, error) {
-	result, err := db.Query(`SELECT * FROM task_list`)
+func ShowTaskData(ctx context.Context, db *sql.DB) (models.TaskSlice, error) {
+	result, err := models.Tasks().All(ctx, db)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 
 	return result, nil
