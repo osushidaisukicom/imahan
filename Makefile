@@ -16,3 +16,20 @@ help: ## Show help
 fmt: ## Format
 	@go fmt ./...
 
+# image
+.PHONY: image-build
+image-build: ## Build Image
+	@${BUILD_COMMAND} build \
+			--format=docker \
+			-f Dockerfile \
+			-t osushidaisukicom/imahan-api:latest \
+			--build-arg="GO_VERSION=${GO_VERSION}" \
+			--platform=linux/amd64 \
+			.
+
+.PHONY: image-push
+image-push: ## Push All Image
+	@${BUILD_COMMAND} push \
+		--tls-verify=false \
+		localhost/osushidaisukicom/imahan-api \
+		${REGISTORY_ENDPOINT}/osushidaisukicom/imahan-api:latest
