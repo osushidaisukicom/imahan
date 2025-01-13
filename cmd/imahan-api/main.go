@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -15,7 +16,7 @@ import (
 
 var config *c.Config
 
-func HandlePostTask(dbDriver, dsn string) func(w http.ResponseWriter, r *http.Request) {
+func HandlePostTask(ctx context.Context, dbDriver, dsn string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &database.TaskData{
 			// TODO: request body から生成できるようにする
@@ -30,7 +31,8 @@ func HandlePostTask(dbDriver, dsn string) func(w http.ResponseWriter, r *http.Re
 		}
 		defer db.Close()
 
-		if _, err := database.InsertTaskData(db, data); err != nil {
+		task, err := database.InsertTaskData(ctx, db, data)
+		if err != nil {
 			slog.Error(err.Error())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -38,7 +40,7 @@ func HandlePostTask(dbDriver, dsn string) func(w http.ResponseWriter, r *http.Re
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(data); err != nil {
+		if err := json.NewEncoder(w).Encode(task); err != nil {
 			slog.Error(err.Error())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -46,10 +48,8 @@ func HandlePostTask(dbDriver, dsn string) func(w http.ResponseWriter, r *http.Re
 	}
 }
 
-func HandleTaskList(dbDriver, dsn string) func(w http.ResponseWriter, r *http.Request) {
+func HandleTaskList(ctx context.Context, dbDriver, dsn string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var taskList []database.Task
-
 		db, err := database.SetupDB(dbDriver, dsn)
 		if err != nil {
 			slog.Error(err.Error())
@@ -58,24 +58,11 @@ func HandleTaskList(dbDriver, dsn string) func(w http.ResponseWriter, r *http.Re
 		}
 		defer db.Close()
 
-		rows, err := database.ShowTaskData(db)
+		taskList, err := database.ShowTaskData(ctx, db)
 		if err != nil {
 			slog.Error(err.Error())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
-		}
-
-		for rows.Next() {
-			var t database.Task
-
-			// TODO: 項目が増えると記述が大変になるので、要改善
-			if err := rows.Scan(&t.TaskID, &t.DisplayName, &t.CreatedAt, &t.UpdatedAt); err != nil {
-				slog.Error(err.Error())
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				return
-			}
-
-			taskList = append(taskList, t)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -87,6 +74,8 @@ func HandleTaskList(dbDriver, dsn string) func(w http.ResponseWriter, r *http.Re
 }
 
 func main() {
+	ctx := context.Background()
+
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
@@ -109,8 +98,8 @@ func main() {
 	)
 
 	r := chi.NewRouter()
-	r.Post("/task", HandlePostTask(dbDriver, dsn))
-	r.Get("/task", HandleTaskList(dbDriver, dsn))
+	r.Post("/task", HandlePostTask(ctx, dbDriver, dsn))
+	r.Get("/task", HandleTaskList(ctx, dbDriver, dsn))
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%s", config.ServerPort),

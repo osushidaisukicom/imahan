@@ -1,7 +1,7 @@
--- create task_list table
+-- create task table
 
 -- テーブルがすでに存在する場合は削除
-DROP TABLE IF EXISTS "task_list";
+DROP TABLE IF EXISTS "task";
 
 -- trigger を定義
 -- 行が更新された時に updated_at に現在時刻を設定
@@ -17,7 +17,7 @@ $$ LANGUAGE plpgsql;
 -- テーブルを作成
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE "task_list" (
+CREATE TABLE "task" (
     task_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     display_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
