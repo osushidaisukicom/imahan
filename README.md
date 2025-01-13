@@ -40,6 +40,20 @@ fyi: https://github.com/volatiletech/sqlboiler
 $ sqlboiler psql -o models -p models --no-tests --wipe
 ```
 
+### Image build & apply k8s
+
+```shellsession
+$ make image-build
+```
+
+```shellsession
+$ make image-push
+```
+
+```shellsession
+$ kustomize build manifests | kubectl apply -f -
+```
+
 ### API
 
 - GET `/task`
